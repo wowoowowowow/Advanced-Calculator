@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Futuristic Calculator</title>
+    <style>
+        :root {
+            --bg-light: #f4f4f4;
+            --text-light: #222;
+            --bg-dark: #121212;
+            --text-dark: #fff;
+            --accent: #4CAF50;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            transition: 0.3s;
+            text-align: center;
+        }
+
+        .container {
+            width: 300px;
+            margin: auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            font-size: 18px;
+            margin-bottom: 10px;
+            border: 1px solid gray;
+            border-radius: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            border: none;
+            background: var(--accent);
+            color: white;
+            border-radius: 5px;
+        }
+
+        #result {
+            margin-top: 10px;
+            font-size: 20px;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            cursor: pointer;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .light-mode {
+            background: var(--bg-light);
+            color: var(--text-light);
+        }
+
+        .dark-mode {
+            background: var(--bg-dark);
+            color: var(--text-dark);
+        }
+    </style>
+</head>
+<body class="light-mode">
+    <button class="theme-toggle" onclick="toggleTheme()">Dark Mode</button>
+    
+    <div class="container">
+        <h2>JavaScript Calculator</h2>
+        <input type="text" id="calculation" placeholder="Enter calculation (e.g., 2+2, sqrt(25))">
+        <button onclick="calculate()">Calculate</button>
+        <p id="result">Result: <span>0</span></p>
+        <button onclick="showOperations()">Show Operations</button>
+        <ul id="operations" style="display:none;"></ul>
+    </div>
+
+    <script>
+        let darkMode = false;
+        function toggleTheme() {
+            document.body.classList.toggle("dark-mode");
+            document.body.classList.toggle("light-mode");
+            darkMode = !darkMode;
+            document.querySelector(".theme-toggle").textContent = darkMode ? "Light Mode" : "Dark Mode";
+        }
+
+        // Allowed math functions
+        const safeMath = {
+            sqrt: Math.sqrt,
+            abs: Math.abs,
+            round: Math.round,
+            pow: Math.pow,
+            log: Math.log,
+            log10: Math.log10,
+            sin: Math.sin,
+            cos: Math.cos,
+            tan: Math.tan,
+            asin: Math.asin,
+            acos: Math.acos,
+            atan: Math.atan
+        };
+
+        function calculate() {
+            let input = document.getElementById("calculation").value;
+            try {
+                let sanitizedInput = input.replace(/[^0-9+\-*/().%sincostanlogsqrtpowabs]/g, ""); // Prevents unsafe code
+                let result = Function(`"use strict"; return (${sanitizedInput})`)(); // Executes safely
+                document.querySelector("#result span").textContent = result;
+            } catch (error) {
+                document.querySelector("#result span").textContent = "Error!";
+            }
+        }
+
+        function showOperations() {
+            let operationsList = {
+                "Basic Arithmetic": ["Addition (+)", "Subtraction (-)", "Multiplication (*)", "Division (/)"],
+                "Advanced Math": ["Square Root (sqrt)", "Power (pow)", "Logarithm (log, log10)"],
+                "Trigonometry": ["Sine (sin)", "Cosine (cos)", "Tangent (tan)"]
+            };
+
+            let list = document.getElementById("operations");
+            list.innerHTML = "";
+            Object.keys(operationsList).forEach(category => {
+                let header = document.createElement("h4");
+                header.textContent = category;
+                list.appendChild(header);
+                operationsList[category].forEach(op => {
+                    let item = document.createElement("li");
+                    item.textContent = op;
+                    list.appendChild(item);
+                });
+            });
+            list.style.display = "block";
+        }
+    </script>
+</body>
+</html>
