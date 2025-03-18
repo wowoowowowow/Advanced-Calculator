@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snitch Advanced Calculator</title>
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="script.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Futuristic Calculator</h1>
+        <button id="theme-toggle">Toggle Theme</button>
+        
+        <input type="text" id="calculation" placeholder="Enter calculation (e.g. 2+2)" autocomplete="off">
+        <button id="calculate">Calculate</button>
+
+        <div id="result">Result: <span>0</span></div>
+        
+        <h3>History</h3>
+        <div id="history"></div>
+
+        <button id="show-list">Show Operations</button>
+        <div id="operations-list" class="hidden"></div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const calculateBtn = document.getElementById("calculate");
+            const input = document.getElementById("calculation");
+            const resultDiv = document.querySelector("#result span");
+            const historyDiv = document.getElementById("history");
+            const showListBtn = document.getElementById("show-list");
+            const operationsListDiv = document.getElementById("operations-list");
+            const themeToggle = document.getElementById("theme-toggle");
+
+            // Toggle theme
+            themeToggle.addEventListener("click", () => {
+                document.body.classList.toggle("dark-mode");
+            });
+
+            // Load operations from backend
+            fetch("calculator.py")
+                .then(response => response.text())
+                .then(script => {
+                    const operations = script.match(/"([^"]+) → Example: ([^"]+)"/g).map(op => op.replace(/["→]/g, ''));
+                    operationsListDiv.innerHTML = "<ul>" + operations.map(op => `<li>${op}</li>`).join("") + "</ul>";
+                });
+
+            showListBtn.addEventListener("click", () => {
+                operationsListDiv.classList.toggle("hidden");
+            });
+
+            // Perform calculation
+            calculateBtn.addEventListener("click", () => {
+                let expression = input.value.trim();
+                if (expression) {
+                    fetch("calculator.py", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                        body: `calculation=${encodeURIComponent(expression)}`
+                    })
+                    .then(response => response.text())
+                    .then(result => {
+                        resultDiv.textContent = result;
+                        historyDiv.innerHTML += `<p>${expression} = ${result}</p>`;
+                    })
+                    .catch(() => alert("Error in calculation!"));
+                }
+            });
+        });
+    </script>
+</body>
+</html>
